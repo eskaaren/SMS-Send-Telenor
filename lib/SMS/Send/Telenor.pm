@@ -7,7 +7,7 @@ package SMS::Send::Telenor;
 use HTTP::Tiny;
 use strict;
 use warnings;
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 use base 'SMS::Send::Driver';
 
 sub new {
@@ -109,3 +109,18 @@ sub _verify_response {
 }
 
 1;
+
+__END__
+ 
+Hide 155 lines of Pod
+=pod
+  
+=head1 NAME
+ 
+SMS::Send::Telenor - SMS::Send driver to send messages via Telenor SMS Pro (https://www.smspro.se/)
+ 
+=head1 VERSION
+ 
+version 0.02
+
+=cut
