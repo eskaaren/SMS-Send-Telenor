@@ -112,7 +112,6 @@ sub _verify_response {
 
 __END__
  
-Hide 155 lines of Pod
 =pod
   
 =head1 NAME
