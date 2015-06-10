@@ -7,22 +7,24 @@ package SMS::Send::Telenor;
 use HTTP::Tiny;
 use strict;
 use warnings;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use base 'SMS::Send::Driver';
 
 sub new {
 	my ($class, $args) = @_;
-	die "$class needs hash_ref with customer_id and password.\n" unless $args->{customer_id} && $args->{password}; 
+	die "$class needs hash_ref with _login and password.\n" unless $args->{_login} && $args->{_password}; 
 	my $self = bless {%$args}, $class;
-	$self->{send_url} = 'http://http://sms-pro.net/services/' . $args->{customer_id} . '/sendsms';
-	$self->{status_url} = 'http://http://sms-pro.net/services/' . $args->{customer_id} . '/status';
+	$self->{send_url} = 'http://http://sms-pro.net/services/' . $args->{_login} . '/sendsms';
+	$self->{status_url} = 'http://http://sms-pro.net/services/' . $args->{_login} . '/status';
 	return $self;
 }
 
 sub send_sms {
 	my ($self, $args) = @_;
-	$args->{customer_id} = $self->{customer_id};
-	$args->{password} = $self->{password};
+	$args->{customer_id} = $self->{_login};
+	$args->{password} = $self->{_password};
+	$args->{message} = $args->{text};
+	$args->{to_msisdn} = $args->{to};
 	my $xml = _build_sms_xml($args);
 
 	my $response = _post($self->{send_url}, $xml);
@@ -36,7 +38,7 @@ sub send_sms {
 sub sms_status {
 	my ($self, $mobilectrl_id) = @_;
 	my $args = {
-		customer_id 	=> $self->{customer_id};
+		customer_id 	=> $self->{_login};
 		mobilectrl_id	=> $mobilectrl_id;
 	};
 	my $xml = _build_status_xml($args);
