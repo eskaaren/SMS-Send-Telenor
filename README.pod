@@ -10,6 +10,7 @@ SMS::Send::Telenor - SMS::Send driver to send messages via Telenor SMS Pro
   my $sender = SMS::Send->new('Telenor',
         _login    => 'your_aql_username',
         _password => 'your_aql_password',
+        _sender   => 'FROM ME', # Optional, can be hardcoded in file.
   );
 
   # Send a message
