@@ -4,30 +4,28 @@ use strict;
 use warnings;
 our $VERSION = '0.06';
 use base 'SMS::Send::Driver';
+use Data::Dumper;
 
 sub new {
     my ($class, %args) = @_;
-    my $args_ref = \%args;
-
-    die "$class needs hash_ref with _login and _password. (Optional _sender.)\n" unless $args_ref->{_login} && $args_ref->{_password};
-    my $self = bless {%$args}, $class;
-    $self->{send_url} = 'http://sms-pro.net/services/' . $args_ref->{_login} . '/sendsms';
-    $self->{status_url} = 'http://sms-pro.net/services/' . $args_ref->{_login} . '/status';
-    $self->{sms_sender} = $args_ref->{_sender} // 'FROM SENDER'; #Add the text that describes who sent the sms, max 11 chars.
+    die "$class needs hash_ref with _login and _password. (Optional _sender.)\n" unless $args{'_login'} && $args{'_password'};
+    my $self = bless {%args}, $class;
+    $self->{base_url}   = 'http://sms-pro.net/services/' . $self->{_login};
+    $self->{send_url}   = $self->{base_url} . '/sendsms';
+    $self->{status_url} = $self->{base_url} . '/status';
+    $self->{_sender}    = $self->{_sender} // 'FROM SENDER'; #Add the text that describes who sent the sms if not sent as _sender to new. Max 11 chars.
     return $self;
 }
 
 sub send_sms {
     my ($self, %args) = @_;
-	my $args_ref = \%args;
     my $xml_args = {
         customer_id     => "$self->{_login}",
         password        => "$self->{_password}",
-        message         => "$args_ref->{text}",
-        to_msisdn       => "$args_ref->{to}",
-        sms_sender      => "$self->{sms_sender}"
+        message         => "$args{'text'}",
+        to_msisdn       => "$args{'to'}",
+        sms_sender      => "$self->{_sender}"
     };
-
     my $sms_xml = _build_sms_xml($xml_args);
     my $response = _post($self->{send_url}, $sms_xml);
 
