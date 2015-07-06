@@ -9,11 +9,11 @@ sub new {
     my ($class, %args) = @_;
     my $args_ref = \%args;
 
-    die "$class needs hash_ref with _login and password.\n" unless $args_ref->{_login} && $args_ref->{_password};
+    die "$class needs hash_ref with _login and _password. (Optional _sender.)\n" unless $args_ref->{_login} && $args_ref->{_password};
     my $self = bless {%$args}, $class;
     $self->{send_url} = 'http://sms-pro.net/services/' . $args_ref->{_login} . '/sendsms';
     $self->{status_url} = 'http://sms-pro.net/services/' . $args_ref->{_login} . '/status';
-    $self->{sms_sender} = 'FROM SENDER'; #Add the text that describes who sent the sms, max 11 chars.
+    $self->{sms_sender} = $args_ref->{_sender} // 'FROM SENDER'; #Add the text that describes who sent the sms, max 11 chars.
     return $self;
 }
 
