@@ -2,35 +2,33 @@ package SMS::Send::Telenor;
 use HTTP::Tiny;
 use strict;
 use warnings;
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 use base 'SMS::Send::Driver';
 
 sub new {
-    my ($class, @arg_arr) = @_;
-    my $args = {
-        _login      => "$arg_arr[1]",
-        _password   => "$arg_arr[3]"
-    };
+    my ($class, %args) = @_;
+    my $args_ref = \%args;
 
-    die "$class needs hash_ref with _login and password.\n" unless $args->{_login} && $args->{_password};
+    die "$class needs hash_ref with _login and password.\n" unless $args_ref->{_login} && $args_ref->{_password};
     my $self = bless {%$args}, $class;
-    $self->{send_url} = 'http://sms-pro.net/services/' . $args->{_login} . '/sendsms';
-    $self->{status_url} = 'http://sms-pro.net/services/' . $args->{_login} . '/status';
-    $self->{sms_sender} = 'FROM SENDER'; #Add the text that describes who sent the sms
+    $self->{send_url} = 'http://sms-pro.net/services/' . $args_ref->{_login} . '/sendsms';
+    $self->{status_url} = 'http://sms-pro.net/services/' . $args_ref->{_login} . '/status';
+    $self->{sms_sender} = 'FROM SENDER'; #Add the text that describes who sent the sms, max 11 chars.
     return $self;
 }
 
 sub send_sms {
-    my ($self, @arg_arr) = @_;
-    my $args = {
+    my ($self, %args) = @_;
+	my $args_ref = \%args;
+    my $xml_args = {
         customer_id     => "$self->{_login}",
         password        => "$self->{_password}",
-        message         => "$arg_arr[1]",
-        to_msisdn       => "$arg_arr[3]",
+        message         => "$args_ref->{text}",
+        to_msisdn       => "$args_ref->{to}",
         sms_sender      => "$self->{sms_sender}"
     };
 
-    my $sms_xml = _build_sms_xml($args);
+    my $sms_xml = _build_sms_xml($xml_args);
     my $response = _post($self->{send_url}, $sms_xml);
 
     my $rv = 1;
@@ -112,7 +110,10 @@ sub _verify_response {
     }
     return 1;
 }
+
 1;
+
+__END__
 
 =head1 NAME
 
@@ -165,4 +166,3 @@ at your option, any later version of Perl 5 you may have available.
 
 
 =cut
-__END__
